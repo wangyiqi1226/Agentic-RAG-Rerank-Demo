@@ -1,0 +1,103 @@
+=====================================
+LangChain 与 RAG 核心知识库
+=====================================
+
+【一、LangChain 基础概念】
+
+1. 什么是 LangChain？
+LangChain 是一个用于开发大语言模型（LLM）应用的开源框架，它通过标准化的接口把模型、数据、工具串联起来，让开发者可以快速构建对话机器人、RAG 系统、Agent 智能体等应用。
+
+2. LangChain 核心模块
+- Model I/O：统一封装大模型调用，包括 ChatOpenAI、ChatDeepSeek 等
+- Retrieval：文档加载、文本切分、向量嵌入、向量存储
+- Chains：把多个步骤串成一条链，早期用 SequentialChain，现在推荐 LCEL
+- Agents：让模型自动决定调用哪个工具，具备推理能力
+- Memory：多轮对话历史管理
+
+3. 什么是 LCEL？
+LCEL（LangChain Expression Language）是 LangChain 新版链式语法，用管道符 | 把组件串起来。
+优点：声明式写法、自动支持流式输出、自动并行执行、易于调试和扩展。
+示例：chain = prompt | llm | output_parser
+
+4. 什么是 Runnable？
+Runnable 是 LangChain 所有组件的统一基类，实现了 invoke、stream、batch、ainvoke 等方法。只要是 Runnable，就能用 | 管道符拼接成链。
+
+【二、RAG 架构原理】
+
+5. 什么是 RAG？
+RAG（Retrieval-Augmented Generation，检索增强生成）是一种让大模型基于私有知识库回答问题的技术。
+流程：用户提问 → 从知识库检索相关片段 → 把片段和问题一起喂给大模型 → 生成有依据的回答。
+
+6. RAG 解决了什么问题？
+- 大模型不知道你的私有数据
+- 大模型训练有截止日期，不知道最新信息
+- 减少大模型幻觉，让回答有来源可查
+
+7. 基础 RAG 完整流程
+第一步：文档加载（Document Loader），读取 PDF、TXT、网页等
+第二步：文本切分（Text Splitter），把长文档切成小块
+第三步：向量嵌入（Embedding），把文本块转成向量
+第四步：向量存储（Vector Store），存到 Chroma、FAISS 等数据库
+第五步：检索（Retriever），用户问题转向量，找最相似的文档块
+第六步：生成（Generation），把检索到的片段和问题一起交给 LLM 回答
+
+【三、文本切分技术】
+
+8. RecursiveCharacterTextSplitter
+LangChain 推荐的递归字符切分器，按优先级尝试不同分隔符（换行、句号、空格），尽量保持句子完整性。
+常用参数：
+- chunk_size：每个文本块的长度，一般 500-1000
+- chunk_overlap：相邻块之间的重叠长度，一般 100-200，防止句子被切断
+
+9. 为什么需要 chunk_overlap？
+如果一段重要信息刚好被切在两个块的边界，没有重叠的话，检索时可能两个块都不完整。重叠 100-200 字符可以保证上下文连续。
+
+【四、向量数据库与 Embedding】
+
+10. 什么是 Embedding？
+Embedding 是把文本转换成一组浮点数向量，语义相近的文本向量距离也近。这样就能通过计算向量相似度来找到相关文档。
+
+11. Chroma 向量数据库
+Chroma 是一个轻量级开源向量数据库，专门用于嵌入检索场景，支持持久化存储，适合本地开发和小规模项目。
+常用方法：from_documents 创建、as_retriever 获取检索器、similarity_search 相似度搜索。
+
+12. BGE Embedding 模型
+BGE 是智源研究院开源的中文嵌入模型，常用版本：
+- bge-small-zh：参数小、速度快，中文效果好
+- bge-base-zh：效果更好，速度略慢
+- bge-m3：多语言、多功能，支持稠密和稀疏向量
+
+【五、进阶 RAG 技术】
+
+13. 什么是查询改写（Query Rewriting）？
+用户的提问往往口语化、模糊，不适合直接检索。查询改写就是用大模型把原始问题优化成更适合检索的标准问句，提升召回准确率。
+
+14. 什么是重排（Reranker）？
+向量检索是粗召回，速度快但精度有限。重排模型（如 BGE Reranker）会对粗召回的文档逐条打分，重新排序，把最相关的排到前面，显著提升回答质量。
+
+15. Reranker 和 Embedding 的区别
+- Embedding 是双塔模型：问题和文档分别编码，速度快，适合大规模粗召回
+- Reranker 是交叉编码模型：问题和文档一起输入，精度高，但速度慢，只适合对少量候选文档精排
+
+16. 什么是 Contextual Compression Retriever？
+LangChain 的上下文压缩检索器，包装在普通检索器外面，先粗召回一批文档，再用重排器压缩筛选，只保留最相关的几个片段。
+
+【六、DeepSeek API 调用】
+
+17. 如何用 LangChain 调用 DeepSeek？
+DeepSeek 兼容 OpenAI 接口格式，直接用 ChatOpenAI 类，修改 base_url 即可：
+model = ChatOpenAI(model="deepseek-chat", base_url="https://api.deepseek.com")
+
+18. DeepSeek 常用模型
+- deepseek-chat：通用对话模型，速度快，成本低
+- deepseek-reasoner：推理模型，擅长复杂逻辑和数学题
+
+【七、常见问题】
+
+19. RAG 出现幻觉怎么办？
+- 在 Prompt 里明确要求"只根据上下文回答，不知道就说不知道"
+- 提升检索质量：优化切分参数、加查询改写、加重排
+- 增加溯源信息，让回答标注来源片段
+
+20. 向量库要不要每次重建？
+不用。用 Chroma 的 persist_directory 参数持久化保存，下次直接加载，不用重新切分和嵌入，节省时间。只有知识库内容更新时才需要重建。
