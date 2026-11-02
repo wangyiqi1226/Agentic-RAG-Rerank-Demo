@@ -1,0 +1,9 @@
+错误现象,可能原因,解决方案
+KeyError 'context',Prompt需要context变量但链路没传,检查链路输出字典key是否和prompt占位符一致
+401 Authentication Failed,API Key错误或没设base_url,检查密钥是否正确，DeepSeek必须设置base_url
+FileNotFoundError Directory not found,路径写错了,Windows用./data相对路径，不要写/.data
+Chroma.from_documents参数错误,新版参数名变了,用documents和embedding（单数），不要写docs和embeddings
+'RunnableSequence' object is not callable,直接用括号调用链了,要用chain.invoke()，不能直接chain()
+召回结果不相关,query太口语化,加查询改写，调大chunk_overlap，加重排器
+回答总是幻觉,上下文没喂进去或prompt约束不够,检查context是否正确传入，在prompt里强调不要编造
+模型下载太慢,默认HuggingFace源,设置HF_ENDPOINT=https://hf-mirror.com用国内镜像

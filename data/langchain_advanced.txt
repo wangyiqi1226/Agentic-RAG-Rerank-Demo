@@ -1,0 +1,34 @@
+【LangChain 进阶知识】
+
+1. RunnablePassthrough.assign() 用法
+assign() 是 LCEL 中非常实用的方法，它在保留上游字典所有字段的基础上，新增一个或多个字段。
+典型场景：RAG链路中，保留原始question，同时新增context字段，不用手动把所有key重新写一遍。
+
+2. RunnableLambda 是什么
+RunnableLambda 用来把普通Python函数包装成Runnable对象，这样就能用 | 管道符串联到LCEL链路里。
+注意：lambda函数接收的输入，取决于管道上游传下来的数据结构。
+
+3. LCEL 三种调用方式
+- invoke：同步调用，一次性返回结果
+- stream：流式调用，逐块返回
+- batch：批量处理多个输入
+- ainvoke / astream / abatch：异步版本，适合Web后端
+
+4. StrOutputParser 作用
+把ChatModel返回的AIMessage对象，提取出其中的文本内容，变成纯字符串。
+如果不加这个parser，最终返回的是AIMessage对象，不方便直接打印。
+
+5. ChatPromptTemplate vs PromptTemplate
+- ChatPromptTemplate：专门用于对话模型，区分system、human、ai消息角色
+- PromptTemplate：旧版纯文本模板，适合补全模型
+现在做对话类应用，统一用ChatPromptTemplate。
+
+6. LangChain 过期迁移建议
+旧版RetrievalQA、SequentialChain已经不推荐使用，新项目统一用LCEL管道写法。
+旧版chains 内部也是用LCEL实现的，只是封装好了，灵活性差。
+
+7. 为什么要用LCEL
+- 声明式写法，结构清晰
+- 自动支持流式、异步、批量
+- 支持LangSmith全链路追踪
+- 组件可替换，容易扩展

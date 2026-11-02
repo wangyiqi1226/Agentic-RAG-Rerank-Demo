@@ -1,0 +1,11 @@
+技术组件,选型,优点,缺点,适用场景
+向量数据库,Chroma,轻量易上手,不支持分布式,本地Demo/学习
+向量数据库,FAISS,检索速度极快,无元数据过滤,算法实验
+向量数据库,Milvus,支持十亿级向量,部署复杂,企业级生产
+向量数据库,PGVector,复用PG数据库,大规模性能一般,已有PG的项目
+Embedding模型,bge-small-zh,速度快体积小,精度一般,低配机器
+Embedding模型,bge-m3,多语言高精度,体积较大,生产环境
+重排模型,bge-reranker-base,速度快,精度略低,快速验证
+重排模型,bge-reranker-v2-m3,精度高多语言,体积较大,正式项目
+LLM,deepseek-chat,性价比高,推理能力弱,日常问答
+LLM,deepseek-reasoner,推理能力强,速度慢成本高,复杂逻辑题
