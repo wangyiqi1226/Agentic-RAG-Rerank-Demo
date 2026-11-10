@@ -141,7 +141,7 @@ history_chain=RunnableWithMessageHistory(
     history_messages_key="history"
 )
 if __name__=="__main__":
-    print("===== 进阶Agentic-RAG（查询改写+BGE重排+溯源+空检索兜底+会话记忆），输入exit退出 =====")
+    print("===== 进阶Agentic-RAG（查询改写+BGE重排+溯源+空检索兜底+会话记忆+元数据过滤的检索器），输入exit退出 =====")
     print("指令示例：")
     print("  #filter source=./data/test.txt  只检索该文件")
     print("  #filter clear 取消过滤")
